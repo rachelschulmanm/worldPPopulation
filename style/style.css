@@ -1,0 +1,12 @@
+body {
+  box-sizing: border-box;
+}
+
+.btn {
+  border-radius: 50px;
+  width: 18%;
+  background-color: brown;
+}
+button {
+  background-color: rgb(14, 144, 142);
+}
