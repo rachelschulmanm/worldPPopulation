@@ -1,14 +1,21 @@
 let btn = document.querySelector(".btn");
 let countries = document.querySelector(".countries");
-// let btnOfCountry = document.createElement("button");
+let input = document.querySelector(".input");
+let label = document.querySelector("label");
 const ctx = document.getElementById("myChart");
 let myLineChart;
-let chartExis = false;
-let newArray = [];
+let chartExists = false;
+let newCountries = [];
 let population = [];
+let cities = [];
+let populationCity = [];
+let section = document.querySelector("section");
+
 document.addEventListener("click", country);
+label.addEventListener("click", city);
+
 async function country(event) {
-  newArray = [];
+  newCountries = [];
   population = [];
   if (event.target.className === "btn") {
     try {
@@ -17,18 +24,17 @@ async function country(event) {
       );
       if (!res.ok) throw new Error("error");
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       countries.innerHTML = "";
 
       data.forEach((element) => {
-        newArray.push(element.name.common);
+        newCountries.push(element.name.common);
         population.push(element.population);
 
         let btnOfCountry = document.createElement("button");
         btnOfCountry.innerText = `${element.name.common}`;
         countries.appendChild(btnOfCountry);
       });
-      console.log(newArray);
     } catch (err) {
       console.error(err);
     }
@@ -38,19 +44,86 @@ async function country(event) {
 }
 
 async function createChart() {
-  if (chartExis === true) {
+  if (chartExists === true) {
     myLineChart.destroy();
   }
-  chartExis = true;
+  chartExists = true;
 
   myLineChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: newArray,
+      labels: newCountries,
       datasets: [
         {
           label: "population of the countries",
           data: population,
+          borderWidth: 1,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    },
+  });
+}
+
+async function city(event) {
+  cities = [];
+  populationCity = [];
+  // if (event.target.className === "btn") {
+  try {
+    const res = await fetch(
+      "https://countriesnow.space/api/v0.1/countries/population/cities/filter",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          limit: 1000,
+          order: "asc",
+          orderBy: "name",
+          country: `${input.value}`,
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error("error");
+    const data1 = await res.json();
+    countries.innerHTML = "";
+    function getCity() {
+      data1.data.forEach((element) => {
+        cities.push(element.city);
+        populationCity.push(element.populationCounts[0].value);
+      });
+    }
+    getCity();
+  } catch (err) {
+    console.error(err);
+  }
+  // }
+
+  await createChart2();
+}
+async function createChart2() {
+  if (chartExists === true) {
+    myLineChart.destroy();
+  }
+  chartExists = true;
+
+  myLineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: cities,
+      datasets: [
+        {
+          label: "population of the countries",
+          data: populationCity,
           borderWidth: 1,
         },
       ],
