@@ -12,7 +12,12 @@ let populationCity = [];
 let section = document.querySelector("section");
 
 document.addEventListener("click", country);
-label.addEventListener("click", city);
+// label.addEventListener("click", city);
+document
+  .querySelector(".countries")
+  .addEventListener("click", (e) =>
+    e.target.tagName === "BUTTON" ? city(e.target.innerText) : false
+  );
 
 async function country(event) {
   newCountries = [];
@@ -71,7 +76,7 @@ async function createChart() {
   });
 }
 
-async function city(event) {
+async function city(buttonLabel = null) {
   cities = [];
   populationCity = [];
   // if (event.target.className === "btn") {
@@ -88,13 +93,14 @@ async function city(event) {
           limit: 1000,
           order: "asc",
           orderBy: "name",
-          country: `${input.value}`,
+          country: `${buttonLabel || input.value}`,
         }),
       }
     );
 
     if (!res.ok) throw new Error("error");
     const data1 = await res.json();
+    console.log(data1);
     countries.innerHTML = "";
     function getCity() {
       data1.data.forEach((element) => {
